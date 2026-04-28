@@ -38,11 +38,11 @@ class Product(models.Model):
     main_image = models.ImageField(upload_to='products/main/')
     created_add = models.DateTimeField(auto_now_add=True)
     updated_add = models.DateTimeField(auto_now=True)
-    # likes = models.ManyToManyField(
-    #         settings.AUTH_USER_MODEL,
-    #         related_name='liked_products',
-    #         blank=True
-    #     )
+    likes = models.ManyToManyField(
+            settings.AUTH_USER_MODEL,
+            related_name='liked_products',
+            blank=True
+        )
     
     def save(self,*args,**kwargs):
         if not self.slug:
