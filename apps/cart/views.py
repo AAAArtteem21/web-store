@@ -30,12 +30,14 @@ class CartItemAddView(generics.CreateAPIView):
     def perform_create(self, serializer):
         cart, _ = Cart.objects.get_or_create(user=self.request.user)
         product_id = self.request.data.get('product_id')
+        product_size = self.request.data.get('product_size')
         quantity = int(self.request.data.get('quantity', 1))
 
         # если уже есть — обновляем количество
         item = CartItem.objects.filter(
             cart=cart, 
-            product_id=product_id
+            product_id=product_id,
+            product_size=product_size
         ).first()
 
         if item:

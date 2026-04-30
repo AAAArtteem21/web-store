@@ -13,7 +13,7 @@ from .serializers import(
 )
 
 class RegisterView(generics.CreateAPIView):
-    queryset = User.object.all()
+    queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
     permission_classes = [permissions.AllowAny]
 

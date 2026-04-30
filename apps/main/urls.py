@@ -6,6 +6,6 @@ urlpatterns = [
     path('category/<slug:slug>/',views.CategoryDetailView.as_view(),name='Category-detail'),
     path('',views.ProductListView.as_view(),name='product-list'),
     path('<slug:slug>/',views.ProductDetailView.as_view(),name='product-detail'),
-    path('<slug:slug>/like/',views.toggle_like.as_view(),name='product-like'),
+    path('<slug:slug>/like/',views.toggle_like,name='product-like'),
 
 ]

@@ -2,9 +2,11 @@ from django.db import models
 from django.contrib.sessions.models import Session
 from apps.main.models import Product,ProductSize
 from decimal import Decimal
+from django.conf import settings
 # Create your models here.
 class Cart(models.Model):
-    session_key = models.CharField(max_length=40,unique=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    session_key = models.CharField(max_length=40)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
