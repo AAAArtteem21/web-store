@@ -204,5 +204,8 @@ STRIPE_PUBLISHABLE_KEY = config('STRIPE_PUBLISHABLE_KEY', default='')
 STRIPE_SECRET_KEY = config('STRIPE_SECRET_KEY', default='')
 STRIPE_WEBHOOK_SECRET = config('STRIPE_WEBHOOK_SECRET', default='')
 
+STRIPE_SUCCESS_URL = config('STRIPE_SUCCESS_URL', default='http://localhost:5173/payment/success')
+STRIPE_CANCEL_URL = config('STRIPE_CANCEL_URL', default='http://localhost:5173/payment/cancel')
+
 
 FRONTEND_URL = config('FRONTEND_URL', default='http://localhost:5173')

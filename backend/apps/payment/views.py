@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
  
-from backend.apps.order.models import Order  # поменяй путь если у тебя другой
+from apps.order.models import Order  # поменяй путь если у тебя другой
 from .serializers import CheckoutSessionResponseSerializer, OrderPaymentSerializer
  
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -103,7 +103,7 @@ class StripeWebhookView(APIView):
         # ── Обработка событий ──────────────────────────────────
         if event["type"] == "checkout.session.completed":
             session = event["data"]["object"]
-            order_id = session.get("metadata", {}).get("order_id")
+            order_id = session.metadata["order_id"]
  
             if order_id:
                 Order.objects.filter(id=order_id).update(status="paid")

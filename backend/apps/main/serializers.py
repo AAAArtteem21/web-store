@@ -34,7 +34,7 @@ class SizeSerializer(serializers.ModelSerializer):
 
 
 class ProductSizeSerializer(serializers.ModelSerializer):
-    size = SizeSerializer()  # вкладений серіалізатор
+    size = SizeSerializer() 
 
     class Meta:
         model = ProductSize
@@ -50,7 +50,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     category = CategoryShortSerializer(read_only=True)
     sizes = ProductSizeSerializer(source='product_sizes', many=True, read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
-    likes_count = serializers.SerializerMethodField()  # исправил — было IntegerField
+    likes_count = serializers.SerializerMethodField() 
     is_liked = serializers.SerializerMethodField()
 
     class Meta:
@@ -58,7 +58,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'category', 'color',
                   'price', 'description', 'main_image',
                   'created_at', 'updated_at', 'likes_count',
-                  'sizes', 'images', 'is_liked']  # добавил все поля
+                  'sizes', 'images', 'is_liked']
         read_only_fields = ['slug', 'created_at']
 
     def get_likes_count(self, obj):
@@ -66,7 +66,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
     def get_is_liked(self, obj):
         request = self.context.get('request')
-        if request and request.user.is_authenticated:  # исправил опечатку is_autheticated
+        if request and request.user.is_authenticated:  
             return obj.likes.filter(id=request.user.id).exists()
         return False
 

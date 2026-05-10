@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.sessions.models import Session
-from backend.apps.main.models import Product,ProductSize
+from apps.main.models import Product,ProductSize
 from decimal import Decimal
 from django.conf import settings
 # Create your models here.

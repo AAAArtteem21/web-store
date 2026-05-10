@@ -29,15 +29,14 @@ class CartItemAddView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         cart, _ = Cart.objects.get_or_create(user=self.request.user)
-        product_id = self.request.data.get('product_id')
-        product_size = self.request.data.get('product_size')
+        product_id = self.request.data.get('product')
+        product_size_id = self.request.data.get('product_size')
         quantity = int(self.request.data.get('quantity', 1))
 
-        # если уже есть — обновляем количество
         item = CartItem.objects.filter(
-            cart=cart, 
+            cart=cart,
             product_id=product_id,
-            product_size=product_size
+            product_size_id=product_size_id
         ).first()
 
         if item:
@@ -46,18 +45,36 @@ class CartItemAddView(generics.CreateAPIView):
         else:
             serializer.save(cart=cart)
 
-
-class CartItemDeleteView(generics.DestroyAPIView):
+class CartItemDeleteView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request):
+        item_id = request.data.get('item_id')
+        try:
+            item = CartItem.objects.get(id=item_id, cart__user=request.user)
+            item.delete()
+            return Response({'message': 'deleted'}, status=status.HTTP_204_NO_CONTENT)
+        except CartItem.DoesNotExist:
+            return Response({'error': 'Not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+
+class CartItemUpdateView(generics.UpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = CartItemSerializer
 
     def get_queryset(self):
         return CartItem.objects.filter(cart__user=self.request.user)
-
-    def destroy(self, request, *args, **kwargs):
-        item = self.get_object()
-        if item.quantity > 1:
-            item.quantity -= 1
+    
+    def update(self,request,*args,**kwargs):
+        item_id = request.data.get('item_id')
+        quantity = request.data.get('quantity')
+        try:
+            item = CartItem.objects.get(id=item_id,cart__user=request.user)
+            if quantity < 1:
+                item.delete()
+                return Response({'message':'deleted'})
+            item.quantity = quantity
             item.save()
-            return Response({'message': 'count product changed'})
-        item.delete()
-        return Response({'message': 'Product deleted'}, status=status.HTTP_204_NO_CONTENT)
+            return Response(CartItemSerializer(item).data)
+        except CartItem.DoesNotExist:
+            return Response({'error':'Not found'},status=status.HTTP_404_NOT_FOUND)

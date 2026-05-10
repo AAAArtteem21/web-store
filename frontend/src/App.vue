@@ -10,7 +10,8 @@ const cart = useCartStore()
 const router = useRouter()
 
 onMounted(async () => {
-  if (auth.isAuthenticated) {
+  const token = localStorage.getItem('access_token')
+  if (token) {
     await auth.fetchProfile()
     await cart.fetchCart()
   }

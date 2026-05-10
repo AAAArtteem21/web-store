@@ -18,11 +18,28 @@ const quantity = ref(1)
 const adding = ref(false)
 const addedMsg = ref('')
 
+const liked = ref(false)
+const likesCount = ref(0)
+
+async function toggleLike() {
+  if (!auth.isAuthenticated) {
+    router.push('/login')
+    return
+  }
+  try {
+    const { data } = await api.post(`/api/v1/product/${route.params.slug}/like/`)
+    liked.value = data.liked
+    likesCount.value = data.likes_count
+  } catch {}
+}
+
 async function fetchProduct() {
   loading.value = true
   try {
     const { data } = await api.get(`/api/v1/product/${route.params.slug}/`)
     product.value = data
+    liked.value = data.is_liked
+    likesCount.value = data.likes_count
     if (data.sizes?.length > 0) {
       selectedSize.value = data.sizes[0].size.id  // ← исправлено
     }
@@ -84,7 +101,9 @@ onMounted(fetchProduct)
           <p class="product-category">{{ product.category?.name }}</p>
           <h1 class="product-title">{{ product.name }}</h1>
           <p class="product-price">${{ product.price }}</p>
-
+          <button class="like-btn" @click="toggleLike">
+            {{ liked ? '❤️' : '🤍' }} {{ likesCount }}
+          </button>
           <p class="product-desc">{{ product.description }}</p>
 
           <!-- Размеры -->
@@ -131,6 +150,21 @@ onMounted(fetchProduct)
 </template>
 
 <style scoped>
+.like-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s;
+  margin-bottom: 1.5rem;
+}
+.like-btn:hover {
+  border-color: #e53e3e;
+  color: #e53e3e;
+}
 .back-btn {
   background: none;
   border: none;

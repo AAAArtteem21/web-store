@@ -1,15 +1,19 @@
 from rest_framework import serializers
 from .models import Order,OrderItem
-from backend.apps.cart.models import Cart
+from apps.cart.models import Cart
 import uuid
 
 
         
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+    product_image = serializers.ImageField(source='product.main_image', read_only=True)
+    size_name = serializers.CharField(source='size.size.name', read_only=True)
+
     class Meta:
-        model= OrderItem
-        fields = ['product','size','quantity','price']
+        model = OrderItem
+        fields = ['id', 'product', 'product_name', 'product_image', 'size', 'size_name', 'quantity', 'price']
         read_only_fields = ['price']
 
 

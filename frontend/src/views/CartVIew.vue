@@ -20,9 +20,11 @@ async function checkout() {
     return
   }
   try {
-    const { data } = await api.post('/api/v1/orders/create/')
-    router.push(`/checkout/${data.id}`)
-  } catch {
+    const { data } = await api.post('/api/v1/order/orders/create-from-cart/')
+    console.log('ORDER DATA:', data)  // ← добавь
+    router.push(`/checkout/${data.order_id}`)
+  } catch (e) {
+    console.log('CHECKOUT ERROR:', e.response?.data)
     alert('Ошибка при создании заказа')
   }
 }

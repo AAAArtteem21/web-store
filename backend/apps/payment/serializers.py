@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from backend.apps.order.models import Order 
+from apps.order.models import Order 
  
  
 class OrderPaymentSerializer(serializers.ModelSerializer):

@@ -27,11 +27,16 @@ class ProductListView(generics.ListAPIView):
     queryset = Product.objects.select_related('category').prefetch_related('product_sizes__size','images').annotate(likes_count=Count('likes')).all()
     serializer_class = ProductDetailSerializer
     permission_classes = [permissions.AllowAny]
-    filter_backends = [filters.SearchFilter,filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend,filters.SearchFilter,filters.OrderingFilter]
     filterset_class = ProductFilter
     search_fields = ['name','description','color']
-    ordering_fields = ['price','created_at','name']
+    ordering_fields = ['price','created_at','name', 'likes_count']
     ordering = ['-created_at']
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
 
 
 class ProductDetailView(generics.RetrieveAPIView):
@@ -40,24 +45,28 @@ class ProductDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     lookup_field = 'slug'
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def toggle_like(request, slug):
-    product = get_object_or_404(
-        Product.objects.annotate(likes_count=Count('likes')),
-        slug=slug
-    )
+    product = get_object_or_404(Product, slug=slug)
     user = request.user
 
     if user in product.likes.all():
         product.likes.remove(user)
-        liked=False
+        liked = False
     else:
         product.likes.add(user)
         liked = True
 
+    likes_count = product.likes.count()  # ← считаем после изменения
+
     return Response({
         'liked': liked,
-        'likes_count': product.likes_count
+        'likes_count': likes_count
     })
 

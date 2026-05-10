@@ -14,7 +14,7 @@ const paying = ref(false)
 async function fetchOrder() {
   loading.value = true
   try {
-    const { data } = await api.get(`/api/v1/orders/${route.params.orderId}/`)
+    const { data } = await api.get(`/api/v1/order/orders/${route.params.orderId}/`)  // ← исправлено
     order.value = data
   } catch {
     order.value = null
@@ -26,14 +26,13 @@ async function fetchOrder() {
 async function pay() {
   paying.value = true
   try {
-    const { data } = await api.post(`/api/v1/orders/${route.params.orderId}/pay/`)
+    const { data } = await api.post(`/api/payment/checkout/${route.params.orderId}/`)
     window.location.href = data.checkout_url
   } catch {
     alert('Ошибка при создании сессии оплаты')
     paying.value = false
   }
 }
-
 onMounted(fetchOrder)
 </script>
 

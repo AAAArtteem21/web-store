@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .serializers import OrderItemSerializer,OrderSerializer
 from .models import Order,OrderItem
-from backend.apps.cart.models import Cart,CartItem
+from apps.cart.models import Cart,CartItem
 
 class OrderCreateView(generics.ListCreateAPIView):
     serializer_class = OrderSerializer
@@ -28,26 +28,37 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
 class OrderFromCartView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(self,request):
+    def post(self, request):
         try:
             cart = Cart.objects.get(user=request.user)
         except Cart.DoesNotExist:
-            return Response({'error':'Cart None'},status=404)
+            return Response({'error': 'Cart None'}, status=404)
         
         if not cart.items.exists():
-            return Response({'error':'Cart clear'},status=400)
+            return Response({'error': 'Cart clear'}, status=400)
 
-        order = Order.objects.create(user=request.user,first_name=request.data.get('first_name'),
-                                     last_name =request.data.get('last_name'),email=request.data.get('email'),total_price= 0)
+        user = request.user
+        order = Order.objects.create(
+            user=user,
+            first_name=request.data.get('first_name') or user.first_name or user.username,
+            last_name=request.data.get('last_name') or user.last_name or '',
+            email=request.data.get('email') or user.email or '',
+            total_price=0
+        )
 
         total = 0
         for item in cart.items.all():
-            OrderItem.objects.create(order=order,product=item.product,size=item.product_size,quantity=item.quantity,price=item.product.price)
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                size=item.product_size,
+                quantity=item.quantity,
+                price=item.product.price
+            )
             total += item.product.price * item.quantity
 
         order.total_price = total
         order.save()
         cart.clear()
 
-        return Response({'status':'order created','order_id': order.id})
-
+        return Response({'status': 'order created', 'order_id': order.id})

@@ -15,7 +15,8 @@ const activeTab = ref('orders')
 async function fetchOrders() {
   loadingOrders.value = true
   try {
-    const { data } = await api.get('/api/v1/orders/')
+    const { data } = await api.get('/api/v1/order/orders/')
+    console.log('ORDERS:', data)
     orders.value = Array.isArray(data) ? data : data.results || []
   } catch {
     orders.value = []
@@ -109,12 +110,12 @@ onMounted(fetchOrders)
               class="order-item"
             >
               <div class="oi-img">
-                <img v-if="item.image" :src="item.image" :alt="item.name" />
+                <img v-if="item.product_image" :src="item.product_image" :alt="item.product_name" />
                 <div v-else class="img-placeholder">🛍</div>
               </div>
               <div class="oi-info">
-                <p class="oi-name">{{ item.name }}</p>
-                <p class="oi-meta">Размер: {{ item.size }} · {{ item.quantity }} шт.</p>
+                <p class="oi-name">{{ item.product_name }}</p>
+                <p class="oi-meta">Размер: {{ item.size_name }} · {{ item.quantity }} шт.</p>
               </div>
               <p class="oi-price">${{ (item.price * item.quantity).toFixed(2) }}</p>
             </div>

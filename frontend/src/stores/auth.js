@@ -8,7 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  const isAuthenticated = computed(() => !!localStorage.getItem('access_token'))
+  const isAuthenticated = computed(() => !!localStorage.getItem('access_token') && !!user.value)
 
   async function login(username, password) {
     loading.value = true
@@ -18,6 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('access_token', data.access)
       localStorage.setItem('refresh_token', data.refresh)
       user.value = data.user
+      await fetchProfile()
       return true
     } catch (e) {
       error.value = e.response?.data?.detail || 'Ошибка входа'
@@ -35,6 +36,7 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('access_token', data.access)
       localStorage.setItem('refresh_token', data.refresh)
       user.value = data.user
+      await fetchProfile()
       return true
     } catch (e) {
       error.value = e.response?.data || 'Ошибка регистрации'

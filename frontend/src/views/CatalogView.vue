@@ -10,14 +10,15 @@ const categories = ref([])
 const loading = ref(true)
 const selectedCategory = ref(null)
 const searchQuery = ref('')
+const ordering = ref('-created_at')
 
 async function fetchProducts(categorySlug = null) {
   loading.value = true
   try {
-    const url = categorySlug
-      ? `/api/v1/product/?category=${categorySlug}`
-      : '/api/v1/product/'
-    const { data } = await api.get(url)
+    const params = new URLSearchParams()
+    if (categorySlug) params.append('category', categorySlug)
+    params.append('ordering', ordering.value)
+    const { data } = await api.get(`/api/v1/product/?${params}`)
     products.value = Array.isArray(data) ? data : data.results || []
   } catch {
     products.value = []
@@ -38,6 +39,11 @@ async function fetchCategories() {
 function selectCategory(slug) {
   selectedCategory.value = slug
   fetchProducts(slug)
+}
+
+function setOrdering(value) {
+  ordering.value = value
+  fetchProducts(selectedCategory.value)
 }
 
 const filtered = computed(() => {
@@ -82,6 +88,15 @@ onMounted(() => {
       >{{ cat.name }}</button>
     </div>
 
+    <!-- Сортировка -->
+    <div class="ordering">
+      <span class="ordering-label">Сортировка:</span>
+      <button class="sort-btn" :class="{ active: ordering === '-created_at' }" @click="setOrdering('-created_at')">Новые</button>
+      <button class="sort-btn" :class="{ active: ordering === 'price' }" @click="setOrdering('price')">Цена ↑</button>
+      <button class="sort-btn" :class="{ active: ordering === '-price' }" @click="setOrdering('-price')">Цена ↓</button>
+      <button class="sort-btn" :class="{ active: ordering === '-likes_count' }" @click="setOrdering('-likes_count')">❤️ Популярные</button>
+    </div>
+
     <!-- Загрузка -->
     <div v-if="loading" class="spinner" />
 
@@ -100,11 +115,12 @@ onMounted(() => {
       >
         <div class="product-img">
           <img
-            v-if="product.image"
-            :src="product.image"
+            v-if="product.main_image"
+            :src="product.main_image"
             :alt="product.name"
           />
           <div v-else class="img-placeholder">🛍</div>
+          <div class="product-likes">❤️ {{ product.likes_count || 0 }}</div>
         </div>
         <div class="product-info">
           <p class="product-category">{{ product.category?.name }}</p>
@@ -135,7 +151,7 @@ onMounted(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 }
 
 .cat-btn {
@@ -156,6 +172,38 @@ onMounted(() => {
   color: white;
 }
 
+.ordering {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.ordering-label {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.sort-btn {
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+}
+
+.sort-btn:hover,
+.sort-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
@@ -170,6 +218,7 @@ onMounted(() => {
   height: 220px;
   overflow: hidden;
   background: var(--bg-card2);
+  position: relative;
 }
 
 .product-img img {
@@ -181,6 +230,19 @@ onMounted(() => {
 
 .product-card:hover .product-img img {
   transform: scale(1.05);
+}
+
+.product-likes {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
 }
 
 .img-placeholder {

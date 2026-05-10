@@ -12,18 +12,29 @@ export const useCartStore = defineStore('cart', () => {
     items.value.reduce((s, i) => s + parseFloat(i.price) * i.quantity, 0).toFixed(2),
   )
 
-  async function fetchCart() {
-    loading.value = true
-    try {
-      const { data } = await api.get('/api/v1/cart/cart/')
-      items.value = data.items || data
-    } catch {
+async function fetchCart() {
+  loading.value = true
+  try {
+    const { data } = await api.get('/api/v1/cart/cart/')
+    console.log('CART DATA:', data)
+    // бэк возвращает пагинированный список или просто массив
+    if (Array.isArray(data)) {
+      items.value = data
+    } else if (Array.isArray(data.results)) {
+      items.value = data.results
+    } else if (Array.isArray(data.items)) {
+      items.value = data.items
+    } else {
       items.value = []
-    } finally {
-      loading.value = false
     }
+  } catch (e) {
+    console.log('CART ERROR:', e.response?.data)
+    items.value = []
+  } finally {
+    loading.value = false
   }
-
+}
+  
   async function addItem(product_id, size_id, quantity = 1) {
     await api.post('/api/v1/cart/add/cart/', {
       product: product_id,
