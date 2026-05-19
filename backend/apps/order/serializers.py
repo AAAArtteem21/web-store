@@ -35,6 +35,7 @@ class OrderSerializer(serializers.ModelSerializer):
                 raise serializers.ValidationError(
                     f"Prodcut {product.name} don`t have"
                 )
+        return data
 
     def create(self,validated_data):
         request = self.context['request']

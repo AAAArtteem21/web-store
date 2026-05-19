@@ -51,6 +51,18 @@ const router = createRouter({
       name: 'payment-cancel',
       component: () => import('@/views/PaymentCancelView.vue'),
     },
+    {
+      path: '/verify-email/:uid/:token',
+      component: () => import('@/views/VerifyEmailView.vue'),
+    },
+    {
+      path: '/password-reset',
+      component: () => import('@/views/PasswordResetView.vue'),
+    },
+    {
+      path: '/password-reset/:uid/:token',
+      component: () => import('@/views/PasswordResetConfirmView.vue'),
+    },
   ],
   scrollBehavior() {
     return { top: 0 }

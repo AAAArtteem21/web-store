@@ -29,6 +29,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def create(self,validated_data):
         validated_data.pop('password_confirm')
         user=User.objects.create_user(**validated_data)
+        user.is_active = False
+        user.save()
         return user
 
 class UserLoginSerializer(serializers.Serializer):
@@ -47,6 +49,8 @@ class UserLoginSerializer(serializers.Serializer):
             )
             if not user:
                 raise serializers.ValidationError('Неверный логин или пароль')
+            if not user.is_active:
+                raise serializers.ValidationError('Подтвердите email перед входом')
             attrs['user'] = user
             return attrs
         raise serializers.ValidationError('Введите username и пароль')

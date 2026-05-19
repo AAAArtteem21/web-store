@@ -8,7 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  const isAuthenticated = computed(() => !!localStorage.getItem('access_token') && !!user.value)
+  const isAuthenticated = computed(() => !!user.value)
 
   async function login(username, password) {
     loading.value = true

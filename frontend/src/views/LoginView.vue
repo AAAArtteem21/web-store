@@ -60,6 +60,11 @@ async function submit() {
         Нет аккаунта?
         <RouterLink to="/register">Зарегистрироваться</RouterLink>
       </p>
+      <p style="text-align:center; margin-top:0.75rem; font-size:0.85rem">
+        <RouterLink to="/password-reset" style="color:var(--text-muted)">
+          Забыл пароль?
+        </RouterLink>
+      </p>
     </div>
   </div>
 </template>

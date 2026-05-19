@@ -11,6 +11,10 @@ from .serializers import(
     ChangePasswordSerializer,
     UserRegistrationSerializer
 )
+from .tasks import send_verification_email, send_password_reset_email
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_str
+from .tokens import email_verification_token, password_reset_token
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -21,6 +25,8 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        send_verification_email.delay(user.id)
 
         refresh = RefreshToken.for_user(user)
 
@@ -78,6 +84,54 @@ class ChangePasswordView(generics.UpdateAPIView):
             'message': 'password changed successfully'
         },status=status.HTTP_200_OK)
     
+class PasswordResetRequestView(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self,request):
+        email = request.data.get('email')
+        try:
+            user = User.objects.get(email=email)
+            send_password_reset_email.delay(user.id)
+        except User.DoesNotExist:
+            pass
+        return Response({
+            'message':'If email exists, reset link was sent'
+        },status=status.HTTP_200_OK)
+
+class VerifyEmailView(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self,request,uidb64,token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (User.DoesNotExist, ValueError):
+            return Response({'error':'Invalid link'},status=status.HTTP_400_BAD_REQUEST)
+    
+        if email_verification_token.check_token(user,token):
+            user.is_active =True
+            user.save()
+            return Response({'messasge':'Email verifed'},status=status.HTTP_200_OK)
+        return Response({'error':'Token expired is invalid'},status=status.HTTP_400_BAD_REQUEST)
+    
+class PasswordResetConfirmView(generics.GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+    def post(self, request, uidb64, token):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (User.DoesNotExist, ValueError):
+            return Response({'error': 'Invalid link'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not password_reset_token.check_token(user, token):
+            return Response({'error': 'Token expired or invalid'}, status=status.HTTP_400_BAD_REQUEST)
+
+        new_password = request.data.get('new_password')
+        user.set_password(new_password)
+        user.save()
+        return Response({'message': 'Password reset successfully'}, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def logout_view(request):
@@ -85,7 +139,7 @@ def logout_view(request):
         refresh_token = request.data.get('refresh_token')
         if refresh_token:
             token = RefreshToken(refresh_token)
-            token.blacklist
+            token.blacklist()
         return Response({
             'message':'Logout successfully'
         },status=status.HTTP_200_OK)

@@ -8,9 +8,34 @@ import api from '@/api/axios'
 const router = useRouter()
 const auth = useAuthStore()
 
+const passwordForm = ref({ old_password: '', new_password: '', new_password_confirm: '' })
+const passwordSuccess = ref('')
+const passwordError = ref('')
+const passwordLoading = ref(false)
+
 const orders = ref([])
 const loadingOrders = ref(true)
 const activeTab = ref('orders')
+
+
+async function changePassword() {
+  passwordError.value = ''
+  passwordSuccess.value = ''
+  if (passwordForm.value.new_password !== passwordForm.value.new_password_confirm) {
+    passwordError.value = 'Пароли не совпадают'
+    return
+  }
+  passwordLoading.value = true
+  try {
+    await api.put('/api/v1/users/change-password/', passwordForm.value)
+    passwordSuccess.value = 'Пароль успешно изменён'
+    passwordForm.value = { old_password: '', new_password: '', new_password_confirm: '' }
+  } catch (e) {
+    passwordError.value = e.response?.data?.old_password?.[0] || 'Ошибка'
+  } finally {
+    passwordLoading.value = false
+  }
+}
 
 async function fetchOrders() {
   loadingOrders.value = true
@@ -70,10 +95,17 @@ onMounted(fetchOrders)
       >
         Мои заказы
       </button>
+      <button
+        class="tab-btn"
+        :class="{ active: activeTab === 'security' }"
+        @click="activeTab = 'security'"
+      >
+        Безопасность
+      </button>
     </div>
 
     <!-- Заказы -->
-    <div v-if="activeTab === 'orders'">
+    <div v-if="activeTab === 'security'">
       <div v-if="loadingOrders" class="spinner" />
 
       <div v-else-if="orders.length === 0" class="empty">
@@ -130,6 +162,40 @@ onMounted(fetchOrders)
             </button>
           </div>
         </div>
+      </div>
+    </div>
+    <div v-if="activeTab === 'security'" class="card" style="padding:1.75rem; max-width:480px">
+      <h3 style="font-weight:800; margin-bottom:1.5rem">Изменить пароль</h3>
+
+      <div class="form-group">
+        <label>Текущий пароль</label>
+        <input v-model="passwordForm.old_password" type="password" class="input" />
+      </div>
+      <div class="form-group">
+        <label>Новый пароль</label>
+        <input v-model="passwordForm.new_password" type="password" class="input" />
+      </div>
+      <div class="form-group">
+        <label>Подтверди новый пароль</label>
+        <input v-model="passwordForm.new_password_confirm" type="password" class="input" />
+      </div>
+
+      <p v-if="passwordError" class="error-msg">{{ passwordError }}</p>
+      <p v-if="passwordSuccess" style="color:green; font-size:0.9rem; margin-bottom:1rem">
+        {{ passwordSuccess }}
+      </p>
+
+      <button class="btn btn-primary" :disabled="passwordLoading" @click="changePassword">
+        {{ passwordLoading ? 'Сохраняем...' : 'Изменить пароль' }}
+      </button>
+
+      <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--border)">
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.75rem">
+          Забыл текущий пароль?
+        </p>
+        <RouterLink to="/password-reset" class="btn btn-secondary" style="display:inline-block">
+          Сбросить пароль по email
+        </RouterLink>
       </div>
     </div>
   </div>

@@ -15,6 +15,8 @@ const form = ref({
 })
 const localError = ref('')
 
+const success = ref(false)
+
 async function submit() {
   localError.value = ''
   if (form.value.password !== form.value.password2) {
@@ -27,62 +29,75 @@ async function submit() {
     password: form.value.password,
     password_confirm: form.value.password2,
   })
-  if (ok) router.push('/')
+  if (ok) success.value = true
 }
 </script>
 
 <template>
   <div class="auth-page">
     <div class="auth-card card">
-      <h2 class="auth-title">Регистрация</h2>
-      <p class="auth-sub">Создай аккаунт и начни шопинг 🛍</p>
-
-      <div class="form-group">
-        <label>Имя пользователя</label>
-        <input v-model="form.username" class="input" placeholder="username" />
+      <div v-if="success" style="text-align:center; padding: 1rem 0">
+        <div style="font-size:3rem">📧</div>
+        <h2 class="auth-title" style="margin-top:1rem">Проверь почту</h2>
+        <p class="auth-sub">
+          Мы отправили письмо на <strong>{{ form.email }}</strong><br>
+          Перейди по ссылке в письме чтобы активировать аккаунт
+        </p>
+        <RouterLink to="/login" class="btn btn-primary submit-btn" style="display:block; margin-top:1.5rem">
+          Перейти ко входу
+        </RouterLink>
       </div>
 
-      <div class="form-group">
-        <label>Email</label>
-        <input v-model="form.email" type="email" class="input" placeholder="you@example.com" />
-      </div>
+      <template v-else>
+        <h2 class="auth-title">Регистрация</h2>
+        <p class="auth-sub">Создай аккаунт и начни шопинг 🛍</p>
 
-      <div class="form-group">
-        <label>Пароль</label>
-        <input v-model="form.password" type="password" class="input" placeholder="••••••••" />
-      </div>
+        <div class="form-group">
+          <label>Имя пользователя</label>
+          <input v-model="form.username" class="input" placeholder="username" />
+        </div>
 
-      <div class="form-group">
-        <label>Подтверди пароль</label>
-        <input
-          v-model="form.password2"
-          type="password"
-          class="input"
-          placeholder="••••••••"
-          @keyup.enter="submit"
-        />
-      </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input v-model="form.email" type="email" class="input" placeholder="you@example.com" />
+        </div>
 
-      <p v-if="localError" class="error-msg">{{ localError }}</p>
-      <p v-if="auth.error" class="error-msg">
-        {{ typeof auth.error === 'string' ? auth.error : JSON.stringify(auth.error) }}
-      </p>
+        <div class="form-group">
+          <label>Пароль</label>
+          <input v-model="form.password" type="password" class="input" placeholder="••••••••" />
+        </div>
 
-      <button
-        class="btn btn-primary submit-btn"
-        :disabled="auth.loading"
-        @click="submit"
-      >
-        {{ auth.loading ? 'Создаём аккаунт...' : 'Зарегистрироваться' }}
-      </button>
+        <div class="form-group">
+          <label>Подтверди пароль</label>
+          <input
+            v-model="form.password2"
+            type="password"
+            class="input"
+            placeholder="••••••••"
+            @keyup.enter="submit"
+          />
+        </div>
 
-      <p class="auth-footer">
-        Уже есть аккаунт?
-        <RouterLink to="/login">Войти</RouterLink>
-      </p>
-    </div>
-  </div>
-</template>
+        <p v-if="localError" class="error-msg">{{ localError }}</p>
+        <p v-if="auth.error" class="error-msg">
+          {{ typeof auth.error === 'string' ? auth.error : JSON.stringify(auth.error) }}
+        </p>
+
+        <button
+          class="btn btn-primary submit-btn"
+          :disabled="auth.loading"
+          @click="submit"
+        >
+          {{ auth.loading ? 'Создаём аккаунт...' : 'Зарегистрироваться' }}
+        </button>
+
+        <p class="auth-footer">
+          Уже есть аккаунт?
+          <RouterLink to="/login">Войти</RouterLink>
+        </p>
+      </template>
+
+</div>
 
 <style scoped>
 .auth-page {
