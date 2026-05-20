@@ -27,7 +27,7 @@ async function changePassword() {
   }
   passwordLoading.value = true
   try {
-    await api.put('/api/v1/users/change-password/', passwordForm.value)
+    await api.put('/api/v1/auth/change-password/', passwordForm.value)
     passwordSuccess.value = 'Пароль успешно изменён'
     passwordForm.value = { old_password: '', new_password: '', new_password_confirm: '' }
   } catch (e) {
@@ -105,7 +105,7 @@ onMounted(fetchOrders)
     </div>
 
     <!-- Заказы -->
-    <div v-if="activeTab === 'security'">
+    <div v-if="activeTab === 'orders'">
       <div v-if="loadingOrders" class="spinner" />
 
       <div v-else-if="orders.length === 0" class="empty">
@@ -164,7 +164,7 @@ onMounted(fetchOrders)
         </div>
       </div>
     </div>
-    <div v-if="activeTab === 'security'" class="card" style="padding:1.75rem; max-width:480px">
+    <div v-else-if="activeTab === 'security'" class="card" style="padding:1.75rem">
       <h3 style="font-weight:800; margin-bottom:1.5rem">Изменить пароль</h3>
 
       <div class="form-group">

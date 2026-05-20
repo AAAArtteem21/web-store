@@ -1,17 +1,21 @@
 <script setup>
 import { ref } from 'vue'
 import api from '@/api/axios'
+import { useAuthStore } from '@/stores/auth'
+const auth = useAuthStore()
 
 const email = ref('')
 const sent = ref(false)
 const loading = ref(false)
 
+const isLoggedIn = !!localStorage.getItem('access_token')
+
 async function submit() {
   loading.value = true
   try {
-    await api.post('/api/v1/users/password-reset/', { email: email.value })
+    await api.post('/api/v1/auth/password-reset/', { email: email.value })
   } finally {
-    sent.value = true  // показываем успех даже если email не найден
+    sent.value = true
     loading.value = false
   }
 }
@@ -24,8 +28,8 @@ async function submit() {
         <div style="font-size:3rem">📧</div>
         <h2 class="auth-title" style="margin-top:1rem">Письмо отправлено</h2>
         <p class="auth-sub">Если аккаунт с таким email существует — ссылка уже в пути</p>
-        <RouterLink to="/login" class="btn btn-primary submit-btn" style="display:block; margin-top:1.5rem">
-          Вернуться ко входу
+        <RouterLink to="/" class="btn btn-primary submit-btn" style="display:block; margin-top:1.5rem">
+            На главную
         </RouterLink>
       </div>
 
@@ -49,9 +53,65 @@ async function submit() {
         </button>
 
         <p class="auth-footer">
-          <RouterLink to="/login">← Вернуться ко входу</RouterLink>
+          <RouterLink to="/">← На главную</RouterLink>
         </p>
       </template>
     </div>
   </div>
 </template>
+
+<style scoped>
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+}
+
+.auth-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.auth-sub {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.9rem;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.auth-footer a {
+  color: var(--primary);
+  font-weight: 600;
+}
+</style>

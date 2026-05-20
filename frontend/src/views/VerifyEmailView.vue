@@ -9,7 +9,7 @@ const status = ref('loading') // loading | success | error
 
 onMounted(async () => {
   try {
-    await api.get(`/api/v1/users/verify-email/${route.params.uid}/${route.params.token}/`)
+    await api.get(`/api/v1/auth/verify-email/${route.params.uid}/${route.params.token}/`)
     status.value = 'success'
     setTimeout(() => router.push('/login'), 3000)
   } catch {

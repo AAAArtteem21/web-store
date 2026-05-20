@@ -20,7 +20,7 @@ async function submit() {
   loading.value = true
   try {
     await api.post(
-      `/api/v1/users/password-reset/${route.params.uid}/${route.params.token}/`,
+      `/api/v1/auth/password-reset/${route.params.uid}/${route.params.token}/`,
       { new_password: form.value.new_password }
     )
     success.value = true
@@ -64,3 +64,53 @@ async function submit() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  padding: 2.5rem;
+}
+
+.auth-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.auth-sub {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 0.4rem;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.9rem;
+}
+
+.error-msg {
+  color: #ef4444;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+</style>

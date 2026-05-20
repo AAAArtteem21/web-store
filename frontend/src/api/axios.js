@@ -22,8 +22,13 @@ api.interceptors.response.use(
     const original = error.config
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true
+      const refresh = localStorage.getItem('refresh_token')
+      
+      if (!refresh) {
+        return Promise.reject(error)  // ← нет токена — просто отклоняем, без редиректа
+      }
+
       try {
-        const refresh = localStorage.getItem('refresh_token')
         const { data } = await axios.post('http://127.0.0.1:8000/api/v1/auth/token/refresh/', {
           refresh,
         })
@@ -33,7 +38,7 @@ api.interceptors.response.use(
       } catch {
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
-        window.location.href = '/login'
+        window.location.href = '/login'  // редирект только если refresh был но протух
       }
     }
     return Promise.reject(error)

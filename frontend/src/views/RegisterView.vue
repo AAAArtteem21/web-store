@@ -80,9 +80,11 @@ async function submit() {
 
         <p v-if="localError" class="error-msg">{{ localError }}</p>
         <p v-if="auth.error" class="error-msg">
-          {{ typeof auth.error === 'string' ? auth.error : JSON.stringify(auth.error) }}
+          {{ typeof auth.error === 'object' 
+            ? Object.values(auth.error).flat().join(', ') 
+            : auth.error 
+          }}
         </p>
-
         <button
           class="btn btn-primary submit-btn"
           :disabled="auth.loading"
@@ -95,9 +97,12 @@ async function submit() {
           Уже есть аккаунт?
           <RouterLink to="/login">Войти</RouterLink>
         </p>
-      </template>
+        </template>
 
-</div>
+    </div>  <!-- auth-card -->
+  </div>    <!-- auth-page -->
+</template>
+
 
 <style scoped>
 .auth-page {

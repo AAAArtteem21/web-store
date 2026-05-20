@@ -8,6 +8,7 @@ export const useAuthStore = defineStore('auth', () => {
   const loading = ref(false)
   const error = ref(null)
 
+    
   const isAuthenticated = computed(() => !!user.value)
 
   async function login(username, password) {
@@ -32,12 +33,8 @@ export const useAuthStore = defineStore('auth', () => {
     loading.value = true
     error.value = null
     try {
-      const { data } = await api.post('/api/v1/auth/register/', userData)
-      localStorage.setItem('access_token', data.access)
-      localStorage.setItem('refresh_token', data.refresh)
-      user.value = data.user
-      await fetchProfile()
-      return true
+      await api.post('/api/v1/auth/register/', userData)
+      return true  // просто возвращаем true, без токенов
     } catch (e) {
       error.value = e.response?.data || 'Ошибка регистрации'
       return false
@@ -53,6 +50,11 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       user.value = null
     }
+  }
+  
+  const token = localStorage.getItem('access_token')
+  if (token) {
+    fetchProfile()
   }
 
   function logout() {

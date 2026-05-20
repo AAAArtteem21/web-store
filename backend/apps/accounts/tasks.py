@@ -15,8 +15,10 @@ def send_password_reset_email(user_id):
     user = User.objects.get(pk=user_id)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = password_reset_token.make_token(user)
-    link = f"{settings.SITE_URL}/reset-password/{uid}/{token}/"
+    link = f"{settings.FRONTEND_URL}/password-reset/{uid}/{token}/"
 
+    print(f"\n🔑 RESET LINK: {link}\n")
+    
     send_email(
         subject="Сброс пароля",
         template="emails/password_reset.html",
@@ -30,7 +32,9 @@ def send_verification_email(user_id):
     user = User.objects.get(pk=user_id)
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = email_verification_token.make_token(user)
-    link = f"{settings.SITE_URL}/verify-email/{uid}/{token}/"
+    link = f"{settings.FRONTEND_URL}/verify-email/{uid}/{token}/"
+
+    print(f"\n✅ VERIFY LINK: {link}\n")
 
     send_email(
         subject="Подтверди email",

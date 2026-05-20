@@ -26,7 +26,7 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        send_verification_email.delay(user.id)
+        send_verification_email(user.id)
 
         refresh = RefreshToken.for_user(user)
 
@@ -91,7 +91,7 @@ class PasswordResetRequestView(generics.GenericAPIView):
         email = request.data.get('email')
         try:
             user = User.objects.get(email=email)
-            send_password_reset_email.delay(user.id)
+            send_password_reset_email(user.id)
         except User.DoesNotExist:
             pass
         return Response({
