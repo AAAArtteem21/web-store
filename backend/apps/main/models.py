@@ -43,7 +43,12 @@ class Product(models.Model):
             related_name='liked_products',
             blank=True
         )
-    
+    favorite = models.ManyToManyField(
+            settings.AUTH_USER_MODEL,
+            related_name='favorite_products',
+            blank=True
+            )
+        
     def save(self,*args,**kwargs):
         if not self.slug:
             self.slug = slugify(self.name)

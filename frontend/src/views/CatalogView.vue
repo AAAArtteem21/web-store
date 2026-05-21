@@ -146,7 +146,13 @@ onMounted(() => {
             </svg>
             {{ product.likes_count || 0 }}
           </div>
+            <div v-if="product.is_favorite" class="fav-pill">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </div>
         </div>
+
         <div class="product-info">
           <span class="product-category">{{ product.category?.name }}</span>
           <h3 class="product-name">{{ product.name }}</h3>
@@ -184,6 +190,17 @@ onMounted(() => {
   text-transform: uppercase;
   color: var(--text-muted);
   margin-bottom: 0.75rem;
+}
+
+.fav-pill {
+  position: absolute;
+  top: 12px; left: 12px;
+  background: rgba(255,255,255,0.92);
+  color: #d4a017;
+  padding: 0.25rem 0.5rem;
+  border-radius: 100px;
+  display: flex; align-items: center;
+  backdrop-filter: blur(8px);
 }
 
 .hero-title {

@@ -58,10 +58,11 @@ def toggle_like(request, slug):
 
     if user in product.likes.all():
         product.likes.remove(user)
-        liked = False
+        liked=False
     else:
         product.likes.add(user)
         liked = True
+       
 
     likes_count = product.likes.count()  # ← считаем после изменения
 
@@ -70,3 +71,27 @@ def toggle_like(request, slug):
         'likes_count': likes_count
     })
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def toggle_favorite(request,slug):
+    product = get_object_or_404(Product,slug=slug)
+    user = request.user
+
+    if product.favorite.filter(pk=user.pk).exists():
+        product.favorite.remove(user)
+        favorite = False
+    else:
+        product.favorite.add(user)
+        favorite = True
+
+    return Response({
+        'favorite': favorite,
+    })
+    
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def my_favorite(request):
+    product = Product.objects.filter(favorite=request.user)
+    serializer = ProductDetailSerializer(product,many=True,context={'request':request})
+    return Response(serializer.data)

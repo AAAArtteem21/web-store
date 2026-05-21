@@ -15,10 +15,10 @@ class CategorySerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         validated_data['slug'] = slugify(validated_data['name'])
-        return super().create(validated_data)   
+        return super().create(validated_data) 
     
     def update(self,instance,validated_data):
-        validated_data['slug'] = slugify(validated_data.get('name'.instance.name))
+        validated_data['slug'] = slugify(validated_data.get('name', instance.name))
         return super().update(instance,validated_data)
     
 class CategoryShortSerializer(serializers.ModelSerializer):
@@ -52,13 +52,16 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     images = ProductImageSerializer(many=True, read_only=True)
     likes_count = serializers.SerializerMethodField() 
     is_liked = serializers.SerializerMethodField()
+    favorites_count = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
+    
 
     class Meta:
         model = Product
         fields = ['id', 'name', 'slug', 'category', 'color',
                   'price', 'description', 'main_image',
                   'created_at', 'updated_at', 'likes_count',
-                  'sizes', 'images', 'is_liked']
+                  'sizes', 'images', 'is_liked','is_favorite','favorites_count']
         read_only_fields = ['slug', 'created_at']
 
     def get_likes_count(self, obj):
@@ -68,5 +71,14 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and request.user.is_authenticated:  
             return obj.likes.filter(id=request.user.id).exists()
+        return False
+
+    def get_favorites_count(self,obj):
+        return obj.likes.count()
+
+    def get_is_favorite(self,obj):
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            return obj.favorite.filter(id=request.user.id).exists()
         return False
 

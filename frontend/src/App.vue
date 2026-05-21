@@ -32,6 +32,12 @@ function logout() {
 
       <div class="nav-center">
         <RouterLink to="/" class="nav-link">Каталог</RouterLink>
+        <RouterLink v-if="auth.isAuthenticated" to="/favorites" class="nav-link nav-link--fav">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+          Избранное
+        </RouterLink>
       </div>
 
       <div class="nav-actions">
@@ -88,6 +94,7 @@ function logout() {
   --border-strong: #c8c5bc;
   --success: #2d7d46;
   --error: #c53030;
+  --fav: #e53e3e;
   --radius: 6px;
   --radius-lg: 12px;
   --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.04);
@@ -132,7 +139,7 @@ a { text-decoration: none; color: inherit; }
 
 .logo-dot { color: var(--accent); font-size: 0.55rem; }
 
-.nav-center { display: flex; gap: 2rem; }
+.nav-center { display: flex; gap: 2rem; align-items: center; }
 
 .nav-link {
   font-size: 0.78rem;
@@ -144,6 +151,21 @@ a { text-decoration: none; color: inherit; }
 }
 
 .nav-link:hover, .nav-link.router-link-active { color: var(--accent); }
+
+/* Избранное в навбаре — подсветка красным при активном */
+.nav-link--fav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.nav-link--fav.router-link-active {
+  color: #ff6b6b;
+}
+
+.nav-link--fav:hover {
+  color: #ff6b6b;
+}
 
 .nav-actions { display: flex; align-items: center; gap: 1rem; }
 
