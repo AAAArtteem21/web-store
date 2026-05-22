@@ -64,7 +64,7 @@ def toggle_like(request, slug):
         liked = True
        
 
-    likes_count = product.likes.count()  # ← считаем после изменения
+    likes_count = product.likes.count()
 
     return Response({
         'liked': liked,

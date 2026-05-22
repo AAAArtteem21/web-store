@@ -54,6 +54,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     is_liked = serializers.SerializerMethodField()
     favorites_count = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
+
     
 
     class Meta:
@@ -81,4 +82,6 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         if request and request.user.is_authenticated:
             return obj.favorite.filter(id=request.user.id).exists()
         return False
+
+
 

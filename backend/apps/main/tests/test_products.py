@@ -43,6 +43,18 @@ class TestCatalog:
         assert response.status_code == status.HTTP_200_OK
         assert response.data['name'] == 'Iphone14'
 
+    def test_get_product_detail_by_slug(self,api_client):
+        product = baker.make(Product,slug='iphone-12',name='Iphone 12')
+
+        url = reverse('product-detail',kwargs={'slug':'iphone-12'})
+        response = api_client.get(url)
+
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data['name'] == 'Iphone12'
+
+
+
     
     def test_toggle_like_unauthorized(self,api_client):
         product = baker.make(Product,slug='test-item')
