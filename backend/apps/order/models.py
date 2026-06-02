@@ -2,6 +2,8 @@ from django.db import models
 from django.conf import settings
 from apps.main.models import Product, ProductSize
 
+
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending','Pending'),

@@ -112,6 +112,17 @@ class TestCartViews:
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not CartItem.objects.filter(id=item.id).exists()
  
+
+    def test_delete_cart(self,auth_client,user):
+        item = baker.make(CartItem,cart__user=user)
+        url = reverse('remove-cart')
+
+        data = {'item_id':item.id}
+        response = auth_client.delete(url,data=data)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not CartItem.objects.filter(id=item.id).exists()
+
     def test_update_cart_item_quantity(self, auth_client, user):
         item = baker.make(CartItem, cart__user=user, quantity=1)
         url = reverse('update-cart', kwargs={'pk': item.id})
@@ -133,6 +144,15 @@ class TestCartViews:
         assert response.status_code == status.HTTP_200_OK
         item.refresh_from_db()
         assert item.quantity == 10
+
+    def test_update_quantity_less_than_one_deletes_item(self,auth_client,user):
+        item = baker.make(CartItem,cart__user=user,quantity=5)
+        url = reverse('update-cart',kwargs={'pk':item.id})
+
+        data = {'item_id':item.id,'quantity':0}
+        response = auth_client.patch(url,data)
+        assert response.data['message'] == 'deleted'
+        assert not CartItem.objects.filter(id=item.id).exists()
 
     def test_update_quantity_less_than_one_deletes_item(self, auth_client, user):
         item = baker.make(CartItem, cart__user=user, quantity=5)
